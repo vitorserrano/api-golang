@@ -1,7 +1,13 @@
 package main
 
-import "fmt"
+import (
+	"api/golang/internal/http"
+	"log"
+)
 
 func main() {
-	fmt.Println("Hello World")
+	log.Println("Starting server 🚀")
+
+	error := http.StartServer()
+	log.Fatal(error)
 }
