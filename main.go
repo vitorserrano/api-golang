@@ -8,6 +8,6 @@ import (
 func main() {
 	log.Println("Starting server 🚀")
 
-	error := http.StartServer()
-	log.Fatal(error)
+	err := http.StartServer()
+	log.Fatal(err)
 }
