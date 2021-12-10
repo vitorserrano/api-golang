@@ -20,5 +20,9 @@ func StartServer() error {
 	posts.PATCH("/:id", handler.PartialUpdatePost)
 	posts.DELETE("/:id", handler.DeletePost)
 
+	posts.GET("/:postId/comments", handler.GetComments)
+	posts.POST("/:postId/comments", handler.CreateComment)
+	posts.GET("/:postId/comments/:id", handler.GetComment)
+
 	return engine.Run(":3000")
 }

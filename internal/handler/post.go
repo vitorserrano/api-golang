@@ -1,30 +1,22 @@
 package handler
 
 import (
+	"api/golang/internal/db"
 	"api/golang/pkg"
 	"fmt"
 	"io"
 	"log"
-	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
-var postMap = make(map[string]*pkg.Post, 0)
+var postRepository = db.PostRepository{}
 
 func GetPosts(c *gin.Context) {
 	titleParam := c.Query("title")
-
-	posts := make([]pkg.Post, 0)
-	for _, v := range postMap {
-		if len(titleParam) > 0 && !strings.Contains(v.Title, titleParam) {
-			continue
-		}
-
-		posts = append(posts, *v)
-	}
+	posts := postRepository.FindPosts(titleParam)
 
 	c.JSON(200, posts)
 }
@@ -47,7 +39,7 @@ func CreatePost(c *gin.Context) {
 		return
 	}
 
-	post := pkg.Post{
+	post := &pkg.Post{
 		Id:       uuid.New(),
 		Title:    requestPost.Title,
 		Body:     requestPost.Body,
@@ -55,7 +47,7 @@ func CreatePost(c *gin.Context) {
 		DateTime: time.Now(),
 	}
 
-	postMap[post.Id.String()] = &post
+	postRepository.InsertPost(post)
 	log.Println(fmt.Sprintf("post %s created", post))
 
 	c.JSON(201, post)
