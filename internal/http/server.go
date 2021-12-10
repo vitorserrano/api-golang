@@ -11,10 +11,14 @@ func StartServer() error {
 	gin.EnableJsonDecoderDisallowUnknownFields()
 
 	engine.GET("/health", handler.HealthCheck)
-	engine.GET("/posts", handler.GetPosts)
-	engine.POST("/posts", handler.CreatePost)
-	engine.PUT("/posts/:id", handler.UpdatePost)
-	engine.PATCH("/posts/:id", handler.PartialUpdatePost)
+
+	posts := engine.Group("/posts")
+	posts.GET("/", handler.GetPosts)
+	posts.GET("/:id", handler.GetPost)
+	posts.POST("/", handler.CreatePost)
+	posts.PUT("/:id", handler.UpdatePost)
+	posts.PATCH("/:id", handler.PartialUpdatePost)
+	posts.DELETE("/:id", handler.DeletePost)
 
 	return engine.Run(":3000")
 }

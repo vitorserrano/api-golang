@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -14,12 +15,29 @@ import (
 var postMap = make(map[string]*pkg.Post, 0)
 
 func GetPosts(c *gin.Context) {
+	titleParam := c.Query("title")
+
 	posts := make([]pkg.Post, 0)
 	for _, v := range postMap {
+		if len(titleParam) > 0 && !strings.Contains(v.Title, titleParam) {
+			continue
+		}
+
 		posts = append(posts, *v)
 	}
 
 	c.JSON(200, posts)
+}
+
+func GetPost(c *gin.Context) {
+	post, responseError := findPost(c)
+
+	if responseError != nil {
+		c.JSON(404, responseError)
+		return
+	}
+
+	c.JSON(200, post)
 }
 
 func CreatePost(c *gin.Context) {
@@ -96,6 +114,18 @@ func PartialUpdatePost(c *gin.Context) {
 		post.User = *partialRequest.User
 	}
 
+	c.JSON(204, "")
+}
+
+func DeletePost(c *gin.Context) {
+	post, responseError := findPost(c)
+
+	if responseError != nil {
+		c.JSON(404, responseError)
+		return
+	}
+
+	delete(postMap, post.Id.String())
 	c.JSON(204, "")
 }
 
