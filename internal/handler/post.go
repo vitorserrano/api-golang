@@ -71,11 +71,14 @@ func UpdatePost(c *gin.Context) {
 	post.User = requestPost.User
 	post.DateTime = time.Now()
 
+	// postRepository.UpdatePost(post)
+
 	c.JSON(200, post)
 }
 
 func PartialUpdatePost(c *gin.Context) {
 	post, responseError := findPost(c)
+
 	if responseError != nil {
 		c.JSON(404, responseError)
 		return
@@ -106,6 +109,8 @@ func PartialUpdatePost(c *gin.Context) {
 		post.User = *partialRequest.User
 	}
 
+	// postRepository.PartialUpdate(post)
+
 	c.JSON(204, "")
 }
 
@@ -117,7 +122,7 @@ func DeletePost(c *gin.Context) {
 		return
 	}
 
-	delete(postMap, post.Id.String())
+	postRepository.DeletePost(post.Id.String())
 	c.JSON(204, "")
 }
 
@@ -139,7 +144,8 @@ func parseBody(c *gin.Context) (*pkg.RequestPost, *pkg.ResponseError) {
 
 func findPost(c *gin.Context) (*pkg.Post, *pkg.ResponseError) {
 	id := c.Param("id")
-	post := postMap[id]
+	post := postRepository.FindById(id)
+
 	if post == nil {
 		return nil, &pkg.ResponseError{
 			Cause:   "id not found",

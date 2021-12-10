@@ -26,3 +26,19 @@ func (PostRepository) FindPosts(title string) []*pkg.Post {
 func (PostRepository) InsertPost(post *pkg.Post) {
 	postMap[post.Id.String()] = post
 }
+
+func (PostRepository) UpdatePost(post *pkg.Post) {
+	// ToDO
+}
+
+func (PostRepository) PartialUpdate(post *pkg.Post) {
+	// TODO
+}
+
+func (PostRepository) DeletePost(id string) {
+	delete(postMap, id)
+}
+
+func (PostRepository) FindById(id string) *pkg.Post {
+	return postMap[id]
+}
