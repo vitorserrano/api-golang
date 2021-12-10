@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"api/golang/internal/db"
+	"api/golang/internal/container"
 	"api/golang/pkg"
 	"fmt"
 	"io"
@@ -12,11 +12,9 @@ import (
 	"github.com/google/uuid"
 )
 
-var postRepository = db.PostRepository{}
-
 func GetPosts(c *gin.Context) {
 	titleParam := c.Query("title")
-	posts := postRepository.FindPosts(titleParam)
+	posts := container.PostRepository.FindPosts(titleParam)
 
 	c.JSON(200, posts)
 }
@@ -47,7 +45,7 @@ func CreatePost(c *gin.Context) {
 		DateTime: time.Now(),
 	}
 
-	postRepository.InsertPost(post)
+	container.PostRepository.InsertPost(post)
 	log.Println(fmt.Sprintf("post %s created", post))
 
 	c.JSON(201, post)
@@ -109,7 +107,7 @@ func PartialUpdatePost(c *gin.Context) {
 		post.User = *partialRequest.User
 	}
 
-	// postRepository.PartialUpdate(post)
+	// container.PostRepository.PartialUpdate(post)
 
 	c.JSON(204, "")
 }
@@ -122,7 +120,7 @@ func DeletePost(c *gin.Context) {
 		return
 	}
 
-	postRepository.DeletePost(post.Id.String())
+	container.PostRepository.DeletePost(post.Id.String())
 	c.JSON(204, "")
 }
 
@@ -144,7 +142,7 @@ func parseBody(c *gin.Context) (*pkg.RequestPost, *pkg.ResponseError) {
 
 func findPost(c *gin.Context) (*pkg.Post, *pkg.ResponseError) {
 	id := c.Param("id")
-	post := postRepository.FindById(id)
+	post := container.PostRepository.FindById(id)
 
 	if post == nil {
 		return nil, &pkg.ResponseError{
