@@ -12,22 +12,12 @@ import (
 	"github.com/google/uuid"
 )
 
+const paramId = "id"
+
 func GetPosts(c *gin.Context) {
 	titleParam := c.Query("title")
 	posts := container.PostRepository.FindPosts(titleParam)
-
 	c.JSON(200, posts)
-}
-
-func GetPost(c *gin.Context) {
-	post, responseError := findPost(c)
-
-	if responseError != nil {
-		c.JSON(404, responseError)
-		return
-	}
-
-	c.JSON(200, post)
 }
 
 func CreatePost(c *gin.Context) {
@@ -52,7 +42,7 @@ func CreatePost(c *gin.Context) {
 }
 
 func UpdatePost(c *gin.Context) {
-	post, responseError := findPost(c)
+	post, responseError := findPost(c, paramId)
 	if responseError != nil {
 		c.JSON(404, responseError)
 		return
@@ -69,14 +59,13 @@ func UpdatePost(c *gin.Context) {
 	post.User = requestPost.User
 	post.DateTime = time.Now()
 
-	// postRepository.UpdatePost(post)
+	container.PostRepository.UpdatePost(post)
 
 	c.JSON(200, post)
 }
 
 func PartialUpdatePost(c *gin.Context) {
-	post, responseError := findPost(c)
-
+	post, responseError := findPost(c, paramId)
 	if responseError != nil {
 		c.JSON(404, responseError)
 		return
@@ -107,14 +96,13 @@ func PartialUpdatePost(c *gin.Context) {
 		post.User = *partialRequest.User
 	}
 
-	// container.PostRepository.PartialUpdate(post)
+	container.PostRepository.PartialUpdate(post)
 
 	c.JSON(204, "")
 }
 
 func DeletePost(c *gin.Context) {
-	post, responseError := findPost(c)
-
+	post, responseError := findPost(c, paramId)
 	if responseError != nil {
 		c.JSON(404, responseError)
 		return
@@ -122,6 +110,16 @@ func DeletePost(c *gin.Context) {
 
 	container.PostRepository.DeletePost(post.Id.String())
 	c.JSON(204, "")
+}
+
+func GetPost(c *gin.Context) {
+	post, responseError := findPost(c, paramId)
+	if responseError != nil {
+		c.JSON(404, responseError)
+		return
+	}
+
+	c.JSON(200, post)
 }
 
 func parseBody(c *gin.Context) (*pkg.RequestPost, *pkg.ResponseError) {
@@ -138,18 +136,4 @@ func parseBody(c *gin.Context) (*pkg.RequestPost, *pkg.ResponseError) {
 	}
 
 	return &requestPost, nil
-}
-
-func findPost(c *gin.Context) (*pkg.Post, *pkg.ResponseError) {
-	id := c.Param("id")
-	post := container.PostRepository.FindById(id)
-
-	if post == nil {
-		return nil, &pkg.ResponseError{
-			Cause:   "id not found",
-			Message: fmt.Sprintf("id %s not found", id),
-		}
-	}
-
-	return post, nil
 }
